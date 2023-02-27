@@ -74,8 +74,7 @@ function App() {
             <Home />
             <About />
             <Newsletter />
-            <ProductList products={lamps} type={"Lamps"} />
-            <ProductList products={candles} type={"Candles"} />
+            <ProductList products={allProducts} type={"Lamps and Candles"} />
           </main>
         </div>
         <Footer />
@@ -97,8 +96,7 @@ Next, let's define the area that will display the views. We are going to be swap
     <Home />
     <About />
     <Newsletter />
-    <ProductList products={lamps} type={"Lamps"} />
-    <ProductList products={candles} type={"Candles"} />
+    <ProductList products={allProducts} type={"Lamps and Candles"} />
   </Routes>
 </main>
 ```
@@ -119,9 +117,7 @@ The paths:
     <Route path="/" element={} />
     <Route path="/about" element={} />
     <Route path="/newsletter" element={} />
-    <Route path="/lamps" element={} />
-    <Route path="/candles" element={} />
-
+    <Route path="/products" element={} />
 ```
 
 All together, with the components
@@ -133,12 +129,10 @@ All together, with the components
     <Route path="/about" element={<About />} />
     <Route path="/newsletter" element={<Newsletter />} />
     <Route
-      path="/lamps"
-      element={<ProductList products={lamps} type={"Lamps"} />}
-    />
-    <Route
-      path="/candles"
-      element={<ProductList products={candles} type={"Candles"} />}
+      path="/products"
+      element={
+        <ProductList products={allProducts} type={"Lamps and Candles"} />
+      }
     />
   </Routes>
 </main>
@@ -214,115 +208,28 @@ import { Link } from "react-router-dom";
 ```js
 <nav>
   <div>
-    <Link to="/lamps">
+    <Link to="/products/lamps">
       <h3>Lamps</h3>
     </Link>
 
-    <Link to="/candles">
+    <Link to="/products/candles">
       <h3>Candles</h3>
     </Link>
   </div>
 </nav>
 ```
 
-## Make Views for Each Product
+## Setup Nested Routes
 
-We can use the url parameters to select a specific item. In the data of each lamp and candle is a field called `id`, we will use this unique identifier to select this one item and show more details of this product.
+In `App.js`, let's update our `/products` route so that it matches both `/products/candles` and `/products/lamps`.
 
-When a user clicks on the item they are interested in, they won't be looking at the URL, but we have set up our code in a way that will add this functionality.
-
-**src/components/common/productlist.js**
-
-```js
-import { Link } from "react-router-dom";
+```
+<Route
+  path="/products/*"
+  element={<ProductList products={allProducts} type="Lamps and Candles" />}
+/>
 ```
 
-```js
-<li key={product.id}>
-  <Link to={`/${type.toLowerCase()}/${product.id}`}>
-    <h4>{product.name}</h4>
-    <h4>
-      <img src={product.image} alt={product.name} />
-    </h4>
-  </Link>
-</li>
-```
+The `*` in the path prop is a wildcard that will match any URL, as long as it begins with `/products`.
 
-**src/components/common/product.js**
-
-```js
-import { useParams } from "react-router-dom";
-```
-
-Inside the function, before the if statement
-
-```js
-let { id } = useParams();
-const [product] = products.filter((product) => product.id === id);
-```
-
-**src/App.js**
-
-```js
-  <Route
-    path="/lamps/:id"
-    element={<Product products={lamps} type={"Lamps"} />}
-  />
-  <Route
-    path="/candles/:id"
-    element={<Product products={candles} type={"Candles"} />}
-  />
-```
-
-## Change the View After an Event
-
-Imagine you are using this site and want to purchase birthday candles. Once you press the `buy now` button, something should happen. For simplicity, once a user presses the `buy now` button it will take the user back to the home page.
-
-**src/components/common/product.js**
-
-Add `Navigate`
-
-```js
-import { useParams, useNavigate, Navigate } from "react-router-dom";
-```
-
-Add navigate function to the `mockBuyNow` function
-
-```js
-const navigate = useNavigate();
-const mockBuyNow = () => {
-  alert(
-    "You pressed Buy Now! Congrats! Our sophisticated system is already charging your card and sending you your purchase. Let's go back to the home page!"
-  );
-  navigate("/");
-};
-```
-
-Add a click event to the button.
-
-```js
-<button onClick={mockBuyNow}>Buy Now!</button>
-```
-
-## Your Turn
-
-There is a page called newsletter.
-
-Add a view for it at `/newsletter`
-
-When the button on that page is pressed make it redicect to the `about` page.
-
-## Super Bonus
-
-Add types to the nav so that it reads
-
-- Lamps
-  - Floor
-  - Ceiling
-  - Table
-- Candles
-  - Decorative
-  - Flameless
-  - Celebratory
-
-Then, when a user clicks on the type it shows a view of just the lamps (or candles) that match the type
+Now, inside `ProductList.js`, we can create additional routing logic.
